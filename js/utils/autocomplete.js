@@ -208,19 +208,25 @@ export class Autocomplete {
   }
 
   positionMenu(cursor) {
-    // Calcular posición aproximada basada en línea y columna
     const textBefore = this.textarea.value.substring(0, cursor);
     const lines = textBefore.split('\n');
     const lineIndex = lines.length - 1;
     const colIndex = lines[lineIndex].length;
 
     const lineHeight = 22; // px
-    const charWidth = 8.1;  // px aproximado para monospace 13.5px
+    const charWidth = 8.1; // px aproximado para monospace
 
-    const top = (lineIndex + 1) * lineHeight - this.textarea.scrollTop + 10;
+    const rawTop = (lineIndex + 1) * lineHeight - this.textarea.scrollTop + 38; // +38 por la barra de chips
     const left = Math.min(this.textarea.clientWidth - 280, Math.max(10, colIndex * charWidth - this.textarea.scrollLeft + 14));
 
-    this.menu.style.top = `${top}px`;
+    // Si se sale por abajo, mostrar hacia arriba
+    const containerHeight = this.textarea.clientHeight;
+    let finalTop = rawTop;
+    if (rawTop > containerHeight - 160 && rawTop > 200) {
+      finalTop = (lineIndex * lineHeight) - this.textarea.scrollTop - 180 + 38;
+    }
+
+    this.menu.style.top = `${Math.max(10, finalTop)}px`;
     this.menu.style.left = `${left}px`;
     this.menu.style.display = 'block';
     this.isOpen = true;

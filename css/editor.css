@@ -11,6 +11,54 @@
   overflow: hidden;
 }
 
+/* Barra de Snippets Rápidos de Autocompletado */
+.editor-quick-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.quick-bar-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.quick-chip {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-family: monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.quick-chip:hover {
+  background: var(--accent-primary);
+  color: #0f172a;
+  border-color: var(--accent-primary);
+}
+
+.quick-bar-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
 .editor-wrapper {
   display: flex;
   flex: 1;
@@ -186,6 +234,7 @@ body.light-theme .tok-ident { color: #0f172a; }
   padding: 10px 14px;
   background: transparent;
   color: transparent; /* Texto transparente: se ve el texto coloreado de fondo */
+  -webkit-text-fill-color: transparent;
   caret-color: #38bdf8; /* Cursor parpadeante visible en color neón */
   border: none;
   outline: none;
