@@ -1,4 +1,6 @@
-// Editor de Código C++ Ligero con Números de Línea y Marcador de Línea Activa
+// Editor de Código C++ Ligero con Resaltado de Sintaxis, Guías Visuales y Autocompletado
+import { CppHighlighter } from './highlighter.js';
+import { Autocomplete } from './autocomplete.js';
 
 export class CodeEditor {
   constructor(containerElement, initialCode = '') {
@@ -8,6 +10,7 @@ export class CodeEditor {
     this.onChangeCallback = null;
 
     this.render();
+    this.autocomplete = new Autocomplete(this);
   }
 
   render() {
@@ -15,7 +18,10 @@ export class CodeEditor {
       <div class="editor-wrapper">
         <div class="editor-gutter" id="editorGutter"></div>
         <div class="editor-input-container">
-          <div class="editor-highlights" id="editorHighlights"></div>
+          <!-- Capa de resaltado de sintaxis y guías visuales detrás del textarea -->
+          <pre class="editor-syntax-layer" id="editorSyntaxLayer" aria-hidden="true"></pre>
+          
+          <!-- Textarea transparente para edición nativa con cursor -->
           <textarea 
             class="editor-textarea" 
             id="editorTextarea" 
@@ -29,23 +35,25 @@ export class CodeEditor {
 
     this.textarea = this.container.querySelector('#editorTextarea');
     this.gutter = this.container.querySelector('#editorGutter');
-    this.highlights = this.container.querySelector('#editorHighlights');
+    this.syntaxLayer = this.container.querySelector('#editorSyntaxLayer');
 
     this.setupEvents();
     this.updateGutter();
+    this.updateSyntaxHighlight();
   }
 
   setupEvents() {
-    // Sincronizar scroll entre gutter y textarea
+    // Sincronizar scroll entre gutter, syntaxLayer y textarea
     this.textarea.addEventListener('scroll', () => {
       this.gutter.scrollTop = this.textarea.scrollTop;
-      this.highlights.scrollTop = this.textarea.scrollTop;
+      this.syntaxLayer.scrollTop = this.textarea.scrollTop;
+      this.syntaxLayer.scrollLeft = this.textarea.scrollLeft;
     });
 
     // Entrada de texto
     this.textarea.addEventListener('input', () => {
       this.updateGutter();
-      this.updateHighlightOverlay();
+      this.updateSyntaxHighlight();
       if (this.onChangeCallback) {
         this.onChangeCallback(this.getValue());
       }
@@ -54,6 +62,9 @@ export class CodeEditor {
     // Manejo de la tecla TAB para indentar con 4 espacios
     this.textarea.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
+        // Si el menú de autocompletado está abierto, lo gestiona el módulo Autocomplete
+        if (this.autocomplete && this.autocomplete.isOpen) return;
+
         e.preventDefault();
         const start = this.textarea.selectionStart;
         const end = this.textarea.selectionEnd;
@@ -62,7 +73,7 @@ export class CodeEditor {
         this.textarea.value = val.substring(0, start) + '    ' + val.substring(end);
         this.textarea.selectionStart = this.textarea.selectionEnd = start + 4;
         this.updateGutter();
-        this.updateHighlightOverlay();
+        this.updateSyntaxHighlight();
 
         if (this.onChangeCallback) {
           this.onChangeCallback(this.getValue());
@@ -89,26 +100,19 @@ export class CodeEditor {
     this.gutter.innerHTML = gutterHtml;
   }
 
-  updateHighlightOverlay() {
-    const lines = this.textarea.value.split('\n');
-    let overlayHtml = '';
-
-    for (let i = 1; i <= lines.length; i++) {
-      const isCurLine = i === this.activeLine;
-      overlayHtml += `<div class="code-line-layer ${isCurLine ? 'active-code-line' : ''}">&nbsp;</div>`;
-    }
-
-    this.highlights.innerHTML = overlayHtml;
+  updateSyntaxHighlight() {
+    const code = this.textarea.value;
+    const highlightedHtml = CppHighlighter.highlight(code, this.activeLine);
+    this.syntaxLayer.innerHTML = highlightedHtml;
   }
 
   setActiveLine(lineNum) {
     this.activeLine = lineNum;
     this.updateGutter();
-    this.updateHighlightOverlay();
+    this.updateSyntaxHighlight();
 
     if (lineNum > 0) {
-      // Auto-scroll hacia la línea activa
-      const lineHeight = 22; // px aproximado
+      const lineHeight = 22; // px
       const targetScroll = Math.max(0, (lineNum - 5) * lineHeight);
       if (Math.abs(this.textarea.scrollTop - targetScroll) > 150) {
         this.textarea.scrollTo({ top: targetScroll, behavior: 'smooth' });
@@ -119,7 +123,7 @@ export class CodeEditor {
   clearActiveLine() {
     this.activeLine = -1;
     this.updateGutter();
-    this.updateHighlightOverlay();
+    this.updateSyntaxHighlight();
   }
 
   getValue() {
@@ -129,7 +133,7 @@ export class CodeEditor {
   setValue(newCode) {
     this.textarea.value = newCode;
     this.updateGutter();
-    this.updateHighlightOverlay();
+    this.updateSyntaxHighlight();
     if (this.onChangeCallback) {
       this.onChangeCallback(newCode);
     }
