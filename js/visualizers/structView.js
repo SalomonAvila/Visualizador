@@ -7,21 +7,23 @@ export class StructView {
 
   render(snapshot) {
     if (!snapshot || !snapshot.structs || Object.keys(snapshot.structs).length === 0) {
-      this.container.innerHTML = `
-        <div class="empty-state">
-          <p>No hay estructuras (<code>struct</code>) declaradas en este paso.</p>
-          <small>Define y declara un struct como <code>struct Alumno { ... }; Alumno a;</code> para visualizarlo.</small>
-        </div>
-      `;
+      this.container.innerHTML = '';
+      this.container.style.display = 'none';
       return;
     }
 
+    this.container.style.display = 'block';
     const { structs, activePointers } = snapshot;
-    let html = '<div class="structs-container">';
+    let html = '<div class="structs-container visual-section-box">';
+    html += `
+      <div class="section-title">
+        <span>📑 Estructuras y Registros (struct)</span>
+        <span class="badge badge-primary">${Object.keys(structs).length} estructura(s)</span>
+      </div>
+    `;
 
     for (const [name, st] of Object.entries(structs)) {
       if (st.isArray) {
-        // Arreglo de estructuras: Alumno lista[3];
         html += `
           <div class="struct-block">
             <div class="struct-header">
@@ -71,7 +73,6 @@ export class StructView {
           </div>
         `;
       } else {
-        // Estructura individual: Alumno a;
         html += `
           <div class="struct-block">
             <div class="struct-header">

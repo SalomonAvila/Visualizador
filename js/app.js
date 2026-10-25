@@ -1,4 +1,4 @@
-// Controlador Principal de C++ VisualLab
+// Controlador Principal de C++ VisualLab (Vista Unificada en el Panel Derecho)
 import { Lexer } from './interpreter/lexer.js';
 import { Parser } from './interpreter/parser.js';
 import { Runtime } from './interpreter/runtime.js';
@@ -22,7 +22,6 @@ export class App {
     this.isPlaying = false;
     this.playTimer = null;
     this.playSpeedMs = 700;
-    this.activeVisualTab = 'arrays';
 
     this.initDOM();
     this.initEditor();
@@ -58,15 +57,12 @@ export class App {
       consoleOutput: document.getElementById('consoleOutput'),
       stdinInput: document.getElementById('stdinInput'),
 
-      // Pestañas visuales
-      tabBtns: document.querySelectorAll('.vis-tab-btn'),
-      tabPanes: {
-        arrays: document.getElementById('paneArrays'),
-        matrices: document.getElementById('paneMatrices'),
-        structs: document.getElementById('paneStructs'),
-        fstream: document.getElementById('paneFstream'),
-        memory: document.getElementById('paneMemory')
-      },
+      // Secciones visuales unificadas
+      sectionMemory: document.getElementById('sectionMemory'),
+      sectionArrays: document.getElementById('sectionArrays'),
+      sectionMatrices: document.getElementById('sectionMatrices'),
+      sectionStructs: document.getElementById('sectionStructs'),
+      sectionFstream: document.getElementById('sectionFstream'),
 
       // Modales
       challengesModal: document.getElementById('challengesModal'),
@@ -85,7 +81,6 @@ export class App {
       vfsCurrentFileName: document.getElementById('vfsCurrentFileName')
     };
 
-    // Inicializar selector de ejemplos
     this.populateExamplesDropdown();
     this.setupTheme();
   }
@@ -129,7 +124,6 @@ export class App {
     const editorContainer = document.getElementById('editorContainer');
     this.editor = new CodeEditor(editorContainer, EXAMPLES[0].code);
     this.editor.onChange(() => {
-      // Si el código cambia, reiniciar la ejecución
       this.stopPlayback();
       this.snapshots = [];
       this.currentStep = -1;
@@ -138,33 +132,29 @@ export class App {
   }
 
   initVisualizers() {
-    this.memoryView = new MemoryView(this.dom.tabPanes.memory);
-    this.arrayView = new ArrayView(this.dom.tabPanes.arrays);
-    this.matrixView = new MatrixView(this.dom.tabPanes.matrices);
-    this.structView = new StructView(this.dom.tabPanes.structs);
-    this.fileStreamView = new FileStreamView(this.dom.tabPanes.fstream);
+    this.memoryView = new MemoryView(this.dom.sectionMemory);
+    this.arrayView = new ArrayView(this.dom.sectionArrays);
+    this.matrixView = new MatrixView(this.dom.sectionMatrices);
+    this.structView = new StructView(this.dom.sectionStructs);
+    this.fileStreamView = new FileStreamView(this.dom.sectionFstream);
   }
 
   bindEvents() {
-    // Selección de ejemplo
     this.dom.examplesSelect.addEventListener('change', (e) => {
       this.loadExample(e.target.value);
     });
 
-    // Botones de ejecución
     this.dom.btnRun.addEventListener('click', () => this.runCode());
     this.dom.btnNext.addEventListener('click', () => this.stepNext());
     this.dom.btnPrev.addEventListener('click', () => this.stepPrev());
     this.dom.btnPlay.addEventListener('click', () => this.togglePlay());
     this.dom.btnReset.addEventListener('click', () => this.resetExecution());
 
-    // Slider de pasos
     this.dom.stepSlider.addEventListener('input', (e) => {
       const targetStep = parseInt(e.target.value, 10);
       this.goToStep(targetStep);
     });
 
-    // Velocidad
     this.dom.speedSelect.addEventListener('change', (e) => {
       this.playSpeedMs = parseInt(e.target.value, 10);
       if (this.isPlaying) {
@@ -173,39 +163,15 @@ export class App {
       }
     });
 
-    // Pestañas visuales
-    this.dom.tabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        this.dom.tabBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        const tabName = btn.getAttribute('data-tab');
-        this.activeVisualTab = tabName;
-
-        Object.values(this.dom.tabPanes).forEach(pane => pane.classList.remove('active'));
-        if (this.dom.tabPanes[tabName]) {
-          this.dom.tabPanes[tabName].classList.add('active');
-        }
-
-        // Re-renderizar panel activo si hay snapshots
-        if (this.currentStep >= 0 && this.snapshots[this.currentStep]) {
-          this.renderActiveVisualizer(this.snapshots[this.currentStep]);
-        }
-      });
-    });
-
-    // Modales de retos y cheat sheet
     this.dom.challengesBtn.addEventListener('click', () => this.openChallengesModal());
     this.dom.challengesClose.addEventListener('click', () => this.dom.challengesModal.classList.remove('open'));
     this.dom.cheatsheetBtn.addEventListener('click', () => this.dom.cheatsheetModal.classList.add('open'));
     this.dom.cheatsheetClose.addEventListener('click', () => this.dom.cheatsheetModal.classList.remove('open'));
 
-    // Modal de VFS (archivos virtuales)
     this.dom.vfsBtn.addEventListener('click', () => this.openVfsModal());
     this.dom.vfsClose.addEventListener('click', () => this.dom.vfsModal.classList.remove('open'));
     this.dom.vfsSaveBtn.addEventListener('click', () => this.saveVfsFile());
 
-    // Cerrar modales con clic fuera
     window.addEventListener('click', (e) => {
       if (e.target === this.dom.challengesModal) this.dom.challengesModal.classList.remove('open');
       if (e.target === this.dom.cheatsheetModal) this.dom.cheatsheetModal.classList.remove('open');
@@ -223,25 +189,7 @@ export class App {
     this.currentStep = -1;
     this.updateStepControls();
 
-    // Cambiar a la pestaña más relevante
-    if (exampleId.includes('matrices')) this.switchTab('matrices');
-    else if (exampleId.includes('structs')) this.switchTab('structs');
-    else if (exampleId.includes('fstream') || exampleId.includes('csv')) this.switchTab('fstream');
-    else if (exampleId.includes('arreglos')) this.switchTab('arrays');
-    else this.switchTab('memory');
-
-    // Ejecutar automáticamente para tener los pasos listos
     this.runCode();
-  }
-
-  switchTab(tabName) {
-    this.activeVisualTab = tabName;
-    this.dom.tabBtns.forEach(b => {
-      b.classList.toggle('active', b.getAttribute('data-tab') === tabName);
-    });
-    Object.keys(this.dom.tabPanes).forEach(name => {
-      this.dom.tabPanes[name].classList.toggle('active', name === tabName);
-    });
   }
 
   runCode() {
@@ -266,24 +214,8 @@ export class App {
       this.currentStep = 0;
       this.applySnapshot(this.snapshots[0]);
       this.updateStepControls();
-
-      // Auto-seleccionar la mejor pestaña según las variables declaradas
-      this.autoSelectRelevantTab(this.snapshots[this.snapshots.length - 1]);
     } catch (err) {
       this.showError(err.message);
-    }
-  }
-
-  autoSelectRelevantTab(lastSnap) {
-    if (!lastSnap) return;
-    if (lastSnap.vfsState && lastSnap.vfsState.openFiles.length > 0) {
-      this.switchTab('fstream');
-    } else if (Object.keys(lastSnap.matrices2D).length > 0) {
-      this.switchTab('matrices');
-    } else if (Object.keys(lastSnap.structs).length > 0) {
-      this.switchTab('structs');
-    } else if (Object.keys(lastSnap.arrays1D).length > 0) {
-      this.switchTab('arrays');
     }
   }
 
@@ -353,18 +285,15 @@ export class App {
   applySnapshot(snap) {
     if (!snap) return;
 
-    // Resaltar línea en el editor
     this.editor.setActiveLine(snap.line);
 
-    // Actualizar banner explicativo
     this.dom.stepLineTag.textContent = `Línea ${snap.line}`;
     this.dom.stepActionTag.textContent = snap.action;
     this.dom.stepDescription.textContent = snap.description;
 
-    // Actualizar consola de salida
     this.dom.consoleOutput.textContent = snap.consoleOutput || '(Consola vacía)';
 
-    // Renderizar todos los visualizadores
+    // Renderizar todos los visualizadores en cascada
     this.renderAllVisualizers(snap);
   }
 
@@ -374,14 +303,6 @@ export class App {
     this.matrixView.render(snap);
     this.structView.render(snap);
     this.fileStreamView.render(snap);
-  }
-
-  renderActiveVisualizer(snap) {
-    if (this.activeVisualTab === 'arrays') this.arrayView.render(snap);
-    else if (this.activeVisualTab === 'matrices') this.matrixView.render(snap);
-    else if (this.activeVisualTab === 'structs') this.structView.render(snap);
-    else if (this.activeVisualTab === 'fstream') this.fileStreamView.render(snap);
-    else if (this.activeVisualTab === 'memory') this.memoryView.render(snap);
   }
 
   updateStepControls() {
@@ -415,7 +336,7 @@ export class App {
     this.dom.consoleOutput.textContent = `❌ ${msg}`;
   }
 
-  // --- Manejo de Retos (Challenges) ---
+  // --- Retos ---
   openChallengesModal() {
     let html = '';
     for (const c of CHALLENGES) {
@@ -455,7 +376,7 @@ export class App {
     this.dom.challengesModal.classList.add('open');
   }
 
-  // --- Manejo de VFS Modal ---
+  // --- VFS ---
   openVfsModal() {
     const files = this.vfs.listFiles();
     let tabsHtml = '';
@@ -491,11 +412,10 @@ export class App {
     const content = this.dom.vfsFileContent.value;
     this.vfs.setFile(fname, content);
     this.dom.vfsModal.classList.remove('open');
-    this.runCode(); // Re-ejecutar con los nuevos datos
+    this.runCode();
   }
 }
 
-// Inicialización de la aplicación al cargar el DOM
 window.addEventListener('DOMContentLoaded', () => {
   window.app = new App();
 });

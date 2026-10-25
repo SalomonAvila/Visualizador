@@ -1,5 +1,31 @@
 /* Estilos de los Visualizadores Interactivos (Memoria, Arreglos, Matrices, Structs, fstream) */
 
+/* Dashboard Unificado en Cascada */
+.vis-content-area {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.vis-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.visual-section-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 /* --- 1. Memoria y Pila de Llamadas (Call Stack) --- */
 .memory-panel {
   display: flex;

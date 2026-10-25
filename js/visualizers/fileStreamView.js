@@ -8,55 +8,61 @@ export class FileStreamView {
   }
 
   render(snapshot) {
-    if (!snapshot || !snapshot.vfsState) {
-      this.container.innerHTML = '<div class="empty-state">No hay estado de archivos</div>';
+    if (!snapshot || !snapshot.vfsState || snapshot.vfsState.openFiles.length === 0) {
+      this.container.innerHTML = '';
+      this.container.style.display = 'none';
       return;
     }
 
+    this.container.style.display = 'block';
     const { openFiles, allFiles } = snapshot.vfsState;
     const fileNames = Object.keys(allFiles);
 
     if (!fileNames.includes(this.activeTab) && fileNames.length > 0) {
-      this.activeTab = fileNames[0];
+      this.activeTab = openFiles[0]?.filename || fileNames[0];
     }
 
     let html = `
-      <div class="fstream-container">
+      <div class="fstream-container visual-section-box">
+        <div class="section-title">
+          <span>📄 Archivos y Flujos (fstream)</span>
+          <span class="badge badge-primary">${openFiles.length} flujo(s) abierto(s)</span>
+        </div>
+
         <!-- Barra de Estado de Streams Abiertos -->
         <div class="stream-status-bar">
-          <div class="status-label">Flujos activos:</div>
+          <div class="status-label">Archivos en uso:</div>
     `;
 
-    if (openFiles.length === 0) {
-      html += `<span class="badge badge-secondary">Ningún archivo abierto actualmente</span>`;
-    } else {
-      for (const stream of openFiles) {
-        const modeBadge = stream.mode === 'in' 
-          ? '<span class="badge badge-info">ifstream (Lectura)</span>' 
-          : '<span class="badge badge-warning">ofstream (Escritura)</span>';
+    for (const stream of openFiles) {
+      const modeBadge = stream.mode === 'in' 
+        ? '<span class="badge badge-info">ifstream (Lectura)</span>' 
+        : '<span class="badge badge-warning">ofstream (Escritura)</span>';
 
-        html += `
-          <div class="stream-tag">
-            <span class="stream-icon">📄</span>
-            <strong>${stream.filename}</strong>
-            ${modeBadge}
-            ${stream.eof ? '<span class="badge badge-danger">EOF (Fin)</span>' : ''}
-            ${stream.lastToken ? `<span class="badge badge-success">Último token: "${stream.lastToken}"</span>` : ''}
-          </div>
-        `;
-      }
+      html += `
+        <div class="stream-tag">
+          <span class="stream-icon">📄</span>
+          <strong>${stream.filename}</strong>
+          ${modeBadge}
+          ${stream.eof ? '<span class="badge badge-danger">EOF (Fin)</span>' : ''}
+          ${stream.lastToken ? `<span class="badge badge-success">Último token: "${stream.lastToken}"</span>` : ''}
+        </div>
+      `;
     }
 
     html += `
         </div>
 
-        <!-- Pestañas de Archivos Disponibles en VFS -->
+        <!-- Pestañas de Archivos -->
         <div class="fstream-tabs">
     `;
 
     for (const name of fileNames) {
       const isSelected = name === this.activeTab;
       const isOpen = openFiles.some(f => f.filename === name);
+      if (!isOpen && name.includes('datos') && !openFiles.some(f => f.filename === name)) {
+        // Solo mostrar archivos relevantes si están abiertos o son de entrada activa
+      }
       html += `
         <button class="file-tab-btn ${isSelected ? 'active' : ''}" data-file="${name}">
           ${isOpen ? '<span class="dot-open" title="Archivo abierto">●</span>' : ''}
@@ -68,7 +74,7 @@ export class FileStreamView {
     html += `
         </div>
 
-        <!-- Visor del Contenido del Archivo Seleccionado con Cursor de Lectura -->
+        <!-- Visor del Contenido del Archivo con Cursor de Lectura -->
         <div class="file-viewer-box">
           <div class="file-viewer-header">
             <span>Contenido de <strong>${this.activeTab}</strong></span>
@@ -83,10 +89,9 @@ export class FileStreamView {
 
     this.container.innerHTML = html;
 
-    // Vincular eventos de pestañas
     const tabBtns = this.container.querySelectorAll('.file-tab-btn');
     tabBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', () => {
         this.activeTab = btn.getAttribute('data-file');
         this.render(snapshot);
       });
@@ -124,7 +129,6 @@ export class FileStreamView {
 
     html += '</div>';
 
-    // Panel explicativo de token leído y conversión atoi si hay stream de lectura
     if (stream && stream.mode === 'in' && lastToken) {
       const parsedInt = parseInt(lastToken.trim(), 10);
       const isNum = !isNaN(parsedInt);
@@ -156,7 +160,6 @@ export class FileStreamView {
   highlightTokens(lineText, stream, isLineUnderCursor) {
     if (!lineText) return '&nbsp;';
 
-    // Separar visualmente por comas para que los alumnos entiendan el parseo CSV
     const parts = lineText.split(',');
     return parts.map((part, idx) => {
       const isLastToken = isLineUnderCursor && stream && stream.lastToken === part.trim();

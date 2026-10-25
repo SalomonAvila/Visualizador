@@ -120,32 +120,22 @@
         <div id="stepDescription" class="step-desc-text">Presiona "Ejecutar" o "Paso" para comenzar a depurar visualmente.</div>
       </div>
 
-      <!-- Barra de Pestañas de Visualización -->
-      <div class="vis-tabs-bar">
-        <button class="vis-tab-btn active" data-tab="arrays">
-          📊 Arreglos 1D
-        </button>
-        <button class="vis-tab-btn" data-tab="matrices">
-          🔲 Matrices 2D
-        </button>
-        <button class="vis-tab-btn" data-tab="structs">
-          📑 Estructuras (struct)
-        </button>
-        <button class="vis-tab-btn" data-tab="fstream">
-          📄 Archivos (fstream)
-        </button>
-        <button class="vis-tab-btn" data-tab="memory">
-          🧠 Pila y Variables
-        </button>
-      </div>
+      <!-- Área de Visualización Unificada en Cascada -->
+      <div class="vis-content-area" id="unifiedVisualizerArea">
+        <!-- 1. Variables Primitivas y Pila -->
+        <div id="sectionMemory" class="vis-section"></div>
 
-      <!-- Contenedores de Visualización -->
-      <div class="vis-content-area">
-        <div id="paneArrays" class="vis-pane active"></div>
-        <div id="paneMatrices" class="vis-pane"></div>
-        <div id="paneStructs" class="vis-pane"></div>
-        <div id="paneFstream" class="vis-pane"></div>
-        <div id="paneMemory" class="vis-pane"></div>
+        <!-- 2. Arreglos 1D -->
+        <div id="sectionArrays" class="vis-section"></div>
+
+        <!-- 3. Matrices 2D -->
+        <div id="sectionMatrices" class="vis-section"></div>
+
+        <!-- 4. Estructuras (struct) -->
+        <div id="sectionStructs" class="vis-section"></div>
+
+        <!-- 5. Flujos de Archivos (fstream, getline, atoi) -->
+        <div id="sectionFstream" class="vis-section"></div>
       </div>
     </section>
 

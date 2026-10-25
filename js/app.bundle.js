@@ -2401,45 +2401,49 @@ Luis Torres,19,88`);
     }
     render(snapshot) {
       if (!snapshot) {
-        this.container.innerHTML = '<div class="empty-state">No hay ejecución activa</div>';
+        this.container.innerHTML = "";
+        this.container.style.display = "none";
         return;
       }
       const { callStack, variables, currentFunction } = snapshot;
       const varEntries = Object.entries(variables);
-      let html = `
-      <div class="memory-panel">
+      if (varEntries.length === 0 && callStack.length <= 1) {
+        this.container.innerHTML = "";
+        this.container.style.display = "none";
+        return;
+      }
+      this.container.style.display = "block";
+      let html = '<div class="memory-panel visual-section-box">';
+      if (callStack.length > 1) {
+        html += `
         <div class="section-title">
           <span>Pila de Llamadas (Call Stack)</span>
           <span class="badge badge-primary">${callStack.length} marco(s)</span>
         </div>
         <div class="call-stack-list">
-    `;
-      for (let i = callStack.length - 1;i >= 0; i--) {
-        const frame = callStack[i];
-        const isActive = i === callStack.length - 1;
-        html += `
-        <div class="stack-frame ${isActive ? "active-frame" : ""}">
-          <div class="frame-header">
-            <span class="frame-fn">${frame.functionName}()</span>
-            ${isActive ? '<span class="badge badge-success">En ejecución</span>' : ""}
+      `;
+        for (let i = callStack.length - 1;i >= 0; i--) {
+          const frame = callStack[i];
+          const isActive = i === callStack.length - 1;
+          html += `
+          <div class="stack-frame ${isActive ? "active-frame" : ""}">
+            <div class="frame-header">
+              <span class="frame-fn">${frame.functionName}()</span>
+              ${isActive ? '<span class="badge badge-success">En ejecución</span>' : ""}
+            </div>
           </div>
-        </div>
-      `;
+        `;
+        }
+        html += `</div>`;
       }
-      html += `
-        </div>
-
-        <div class="section-title mt-4">
-          <span>Variables Locales en '${currentFunction}()'</span>
-          <span class="badge badge-info">${varEntries.length} variables</span>
-        </div>
-    `;
-      if (varEntries.length === 0) {
+      if (varEntries.length > 0) {
         html += `
-        <div class="empty-state">No hay variables primitivas declaradas en este ámbito.</div>
+        <div class="section-title ${callStack.length > 1 ? "mt-3" : ""}">
+          <span>\uD83E\uDDE0 Variables Primitivas (${currentFunction})</span>
+          <span class="badge badge-info">${varEntries.length} variable(s)</span>
+        </div>
+        <div class="variables-grid">
       `;
-      } else {
-        html += `<div class="variables-grid">`;
         for (const [name, val] of varEntries) {
           let typeBadge = "int";
           if (typeof val === "number") {
@@ -2470,7 +2474,7 @@ Luis Torres,19,88`);
       if (typeof val === "boolean")
         return val ? "true" : "false";
       if (val === null || val === undefined)
-        return "<em>no inicializado</em>";
+        return "<em>-</em>";
       return String(val);
     }
   }
@@ -2482,16 +2486,19 @@ Luis Torres,19,88`);
     }
     render(snapshot) {
       if (!snapshot || !snapshot.arrays1D || Object.keys(snapshot.arrays1D).length === 0) {
-        this.container.innerHTML = `
-        <div class="empty-state">
-          <p>No hay arreglos 1D declarados en este paso.</p>
-          <small>Declara un arreglo como <code>int arr[5];</code> para visualizarlo.</small>
-        </div>
-      `;
+        this.container.innerHTML = "";
+        this.container.style.display = "none";
         return;
       }
+      this.container.style.display = "block";
       const { arrays1D, activePointers } = snapshot;
-      let html = '<div class="arrays-container">';
+      let html = '<div class="arrays-container visual-section-box">';
+      html += `
+      <div class="section-title">
+        <span>\uD83D\uDCCA Arreglos Unidimensionales (1D)</span>
+        <span class="badge badge-primary">${Object.keys(arrays1D).length} arreglo(s)</span>
+      </div>
+    `;
       for (const [name, arr] of Object.entries(arrays1D)) {
         const lastAccess = arr.lastAccess;
         html += `
@@ -2520,7 +2527,6 @@ Luis Torres,19,88`);
           }
           html += `
           <div class="array-column">
-            <!-- Indicador de variable apuntando al índice (ej: i = 2) -->
             <div class="pointer-slot top">
               ${pointingVars.length > 0 ? `
                 <div class="pointer-badge" title="Variable(s): ${pointingVars.join(", ")}">
@@ -2530,12 +2536,10 @@ Luis Torres,19,88`);
               ` : ""}
             </div>
 
-            <!-- Celda de memoria del arreglo -->
             <div class="array-cell ${accessClass}">
               <span class="cell-val">${val !== undefined ? val : "-"}</span>
             </div>
 
-            <!-- Etiqueta de índice [0], [1], etc. -->
             <div class="cell-index">[${i}]</div>
           </div>
         `;
@@ -2557,16 +2561,19 @@ Luis Torres,19,88`);
     }
     render(snapshot) {
       if (!snapshot || !snapshot.matrices2D || Object.keys(snapshot.matrices2D).length === 0) {
-        this.container.innerHTML = `
-        <div class="empty-state">
-          <p>No hay matrices 2D declaradas en este paso.</p>
-          <small>Declara una matriz como <code>int mat[3][3];</code> para visualizarla.</small>
-        </div>
-      `;
+        this.container.innerHTML = "";
+        this.container.style.display = "none";
         return;
       }
+      this.container.style.display = "block";
       const { matrices2D, activePointers } = snapshot;
-      let html = '<div class="matrices-container">';
+      let html = '<div class="matrices-container visual-section-box">';
+      html += `
+      <div class="section-title">
+        <span>\uD83D\uDD32 Matrices Bidimensionales (2D)</span>
+        <span class="badge badge-primary">${Object.keys(matrices2D).length} matriz/ces</span>
+      </div>
+    `;
       for (const [name, mat] of Object.entries(matrices2D)) {
         const lastAccess = mat.lastAccess;
         html += `
@@ -2652,16 +2659,19 @@ Luis Torres,19,88`);
     }
     render(snapshot) {
       if (!snapshot || !snapshot.structs || Object.keys(snapshot.structs).length === 0) {
-        this.container.innerHTML = `
-        <div class="empty-state">
-          <p>No hay estructuras (<code>struct</code>) declaradas en este paso.</p>
-          <small>Define y declara un struct como <code>struct Alumno { ... }; Alumno a;</code> para visualizarlo.</small>
-        </div>
-      `;
+        this.container.innerHTML = "";
+        this.container.style.display = "none";
         return;
       }
+      this.container.style.display = "block";
       const { structs, activePointers } = snapshot;
-      let html = '<div class="structs-container">';
+      let html = '<div class="structs-container visual-section-box">';
+      html += `
+      <div class="section-title">
+        <span>\uD83D\uDCD1 Estructuras y Registros (struct)</span>
+        <span class="badge badge-primary">${Object.keys(structs).length} estructura(s)</span>
+      </div>
+    `;
       for (const [name, st] of Object.entries(structs)) {
         if (st.isArray) {
           html += `
@@ -2758,46 +2768,50 @@ Luis Torres,19,88`);
       this.activeTab = "estudiantes.csv";
     }
     render(snapshot) {
-      if (!snapshot || !snapshot.vfsState) {
-        this.container.innerHTML = '<div class="empty-state">No hay estado de archivos</div>';
+      if (!snapshot || !snapshot.vfsState || snapshot.vfsState.openFiles.length === 0) {
+        this.container.innerHTML = "";
+        this.container.style.display = "none";
         return;
       }
+      this.container.style.display = "block";
       const { openFiles, allFiles } = snapshot.vfsState;
       const fileNames = Object.keys(allFiles);
       if (!fileNames.includes(this.activeTab) && fileNames.length > 0) {
-        this.activeTab = fileNames[0];
+        this.activeTab = openFiles[0]?.filename || fileNames[0];
       }
       let html = `
-      <div class="fstream-container">
+      <div class="fstream-container visual-section-box">
+        <div class="section-title">
+          <span>\uD83D\uDCC4 Archivos y Flujos (fstream)</span>
+          <span class="badge badge-primary">${openFiles.length} flujo(s) abierto(s)</span>
+        </div>
+
         <!-- Barra de Estado de Streams Abiertos -->
         <div class="stream-status-bar">
-          <div class="status-label">Flujos activos:</div>
+          <div class="status-label">Archivos en uso:</div>
     `;
-      if (openFiles.length === 0) {
-        html += `<span class="badge badge-secondary">Ningún archivo abierto actualmente</span>`;
-      } else {
-        for (const stream of openFiles) {
-          const modeBadge = stream.mode === "in" ? '<span class="badge badge-info">ifstream (Lectura)</span>' : '<span class="badge badge-warning">ofstream (Escritura)</span>';
-          html += `
-          <div class="stream-tag">
-            <span class="stream-icon">\uD83D\uDCC4</span>
-            <strong>${stream.filename}</strong>
-            ${modeBadge}
-            ${stream.eof ? '<span class="badge badge-danger">EOF (Fin)</span>' : ""}
-            ${stream.lastToken ? `<span class="badge badge-success">Último token: "${stream.lastToken}"</span>` : ""}
-          </div>
-        `;
-        }
+      for (const stream of openFiles) {
+        const modeBadge = stream.mode === "in" ? '<span class="badge badge-info">ifstream (Lectura)</span>' : '<span class="badge badge-warning">ofstream (Escritura)</span>';
+        html += `
+        <div class="stream-tag">
+          <span class="stream-icon">\uD83D\uDCC4</span>
+          <strong>${stream.filename}</strong>
+          ${modeBadge}
+          ${stream.eof ? '<span class="badge badge-danger">EOF (Fin)</span>' : ""}
+          ${stream.lastToken ? `<span class="badge badge-success">Último token: "${stream.lastToken}"</span>` : ""}
+        </div>
+      `;
       }
       html += `
         </div>
 
-        <!-- Pestañas de Archivos Disponibles en VFS -->
+        <!-- Pestañas de Archivos -->
         <div class="fstream-tabs">
     `;
       for (const name of fileNames) {
         const isSelected = name === this.activeTab;
         const isOpen = openFiles.some((f) => f.filename === name);
+        if (!isOpen && name.includes("datos") && !openFiles.some((f) => f.filename === name)) {}
         html += `
         <button class="file-tab-btn ${isSelected ? "active" : ""}" data-file="${name}">
           ${isOpen ? '<span class="dot-open" title="Archivo abierto">●</span>' : ""}
@@ -2808,7 +2822,7 @@ Luis Torres,19,88`);
       html += `
         </div>
 
-        <!-- Visor del Contenido del Archivo Seleccionado con Cursor de Lectura -->
+        <!-- Visor del Contenido del Archivo con Cursor de Lectura -->
         <div class="file-viewer-box">
           <div class="file-viewer-header">
             <span>Contenido de <strong>${this.activeTab}</strong></span>
@@ -2823,7 +2837,7 @@ Luis Torres,19,88`);
       this.container.innerHTML = html;
       const tabBtns = this.container.querySelectorAll(".file-tab-btn");
       tabBtns.forEach((btn) => {
-        btn.addEventListener("click", (e) => {
+        btn.addEventListener("click", () => {
           this.activeTab = btn.getAttribute("data-file");
           this.render(snapshot);
         });
@@ -3323,7 +3337,6 @@ int main() {
       this.isPlaying = false;
       this.playTimer = null;
       this.playSpeedMs = 700;
-      this.activeVisualTab = "arrays";
       this.initDOM();
       this.initEditor();
       this.initVisualizers();
@@ -3350,14 +3363,11 @@ int main() {
         stepDescription: document.getElementById("stepDescription"),
         consoleOutput: document.getElementById("consoleOutput"),
         stdinInput: document.getElementById("stdinInput"),
-        tabBtns: document.querySelectorAll(".vis-tab-btn"),
-        tabPanes: {
-          arrays: document.getElementById("paneArrays"),
-          matrices: document.getElementById("paneMatrices"),
-          structs: document.getElementById("paneStructs"),
-          fstream: document.getElementById("paneFstream"),
-          memory: document.getElementById("paneMemory")
-        },
+        sectionMemory: document.getElementById("sectionMemory"),
+        sectionArrays: document.getElementById("sectionArrays"),
+        sectionMatrices: document.getElementById("sectionMatrices"),
+        sectionStructs: document.getElementById("sectionStructs"),
+        sectionFstream: document.getElementById("sectionFstream"),
         challengesModal: document.getElementById("challengesModal"),
         challengesClose: document.getElementById("challengesClose"),
         challengesList: document.getElementById("challengesList"),
@@ -3417,11 +3427,11 @@ int main() {
       });
     }
     initVisualizers() {
-      this.memoryView = new MemoryView(this.dom.tabPanes.memory);
-      this.arrayView = new ArrayView(this.dom.tabPanes.arrays);
-      this.matrixView = new MatrixView(this.dom.tabPanes.matrices);
-      this.structView = new StructView(this.dom.tabPanes.structs);
-      this.fileStreamView = new FileStreamView(this.dom.tabPanes.fstream);
+      this.memoryView = new MemoryView(this.dom.sectionMemory);
+      this.arrayView = new ArrayView(this.dom.sectionArrays);
+      this.matrixView = new MatrixView(this.dom.sectionMatrices);
+      this.structView = new StructView(this.dom.sectionStructs);
+      this.fileStreamView = new FileStreamView(this.dom.sectionFstream);
     }
     bindEvents() {
       this.dom.examplesSelect.addEventListener("change", (e) => {
@@ -3442,21 +3452,6 @@ int main() {
           this.stopPlayback();
           this.startPlayback();
         }
-      });
-      this.dom.tabBtns.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          this.dom.tabBtns.forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
-          const tabName = btn.getAttribute("data-tab");
-          this.activeVisualTab = tabName;
-          Object.values(this.dom.tabPanes).forEach((pane) => pane.classList.remove("active"));
-          if (this.dom.tabPanes[tabName]) {
-            this.dom.tabPanes[tabName].classList.add("active");
-          }
-          if (this.currentStep >= 0 && this.snapshots[this.currentStep]) {
-            this.renderActiveVisualizer(this.snapshots[this.currentStep]);
-          }
-        });
       });
       this.dom.challengesBtn.addEventListener("click", () => this.openChallengesModal());
       this.dom.challengesClose.addEventListener("click", () => this.dom.challengesModal.classList.remove("open"));
@@ -3483,26 +3478,7 @@ int main() {
       this.snapshots = [];
       this.currentStep = -1;
       this.updateStepControls();
-      if (exampleId.includes("matrices"))
-        this.switchTab("matrices");
-      else if (exampleId.includes("structs"))
-        this.switchTab("structs");
-      else if (exampleId.includes("fstream") || exampleId.includes("csv"))
-        this.switchTab("fstream");
-      else if (exampleId.includes("arreglos"))
-        this.switchTab("arrays");
-      else
-        this.switchTab("memory");
       this.runCode();
-    }
-    switchTab(tabName) {
-      this.activeVisualTab = tabName;
-      this.dom.tabBtns.forEach((b) => {
-        b.classList.toggle("active", b.getAttribute("data-tab") === tabName);
-      });
-      Object.keys(this.dom.tabPanes).forEach((name) => {
-        this.dom.tabPanes[name].classList.toggle("active", name === tabName);
-      });
     }
     runCode() {
       this.stopPlayback();
@@ -3522,22 +3498,8 @@ int main() {
         this.currentStep = 0;
         this.applySnapshot(this.snapshots[0]);
         this.updateStepControls();
-        this.autoSelectRelevantTab(this.snapshots[this.snapshots.length - 1]);
       } catch (err) {
         this.showError(err.message);
-      }
-    }
-    autoSelectRelevantTab(lastSnap) {
-      if (!lastSnap)
-        return;
-      if (lastSnap.vfsState && lastSnap.vfsState.openFiles.length > 0) {
-        this.switchTab("fstream");
-      } else if (Object.keys(lastSnap.matrices2D).length > 0) {
-        this.switchTab("matrices");
-      } else if (Object.keys(lastSnap.structs).length > 0) {
-        this.switchTab("structs");
-      } else if (Object.keys(lastSnap.arrays1D).length > 0) {
-        this.switchTab("arrays");
       }
     }
     stepNext() {
@@ -3612,18 +3574,6 @@ int main() {
       this.matrixView.render(snap);
       this.structView.render(snap);
       this.fileStreamView.render(snap);
-    }
-    renderActiveVisualizer(snap) {
-      if (this.activeVisualTab === "arrays")
-        this.arrayView.render(snap);
-      else if (this.activeVisualTab === "matrices")
-        this.matrixView.render(snap);
-      else if (this.activeVisualTab === "structs")
-        this.structView.render(snap);
-      else if (this.activeVisualTab === "fstream")
-        this.fileStreamView.render(snap);
-      else if (this.activeVisualTab === "memory")
-        this.memoryView.render(snap);
     }
     updateStepControls() {
       const total = this.snapshots.length;

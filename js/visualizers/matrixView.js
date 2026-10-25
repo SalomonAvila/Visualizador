@@ -7,17 +7,20 @@ export class MatrixView {
 
   render(snapshot) {
     if (!snapshot || !snapshot.matrices2D || Object.keys(snapshot.matrices2D).length === 0) {
-      this.container.innerHTML = `
-        <div class="empty-state">
-          <p>No hay matrices 2D declaradas en este paso.</p>
-          <small>Declara una matriz como <code>int mat[3][3];</code> para visualizarla.</small>
-        </div>
-      `;
+      this.container.innerHTML = '';
+      this.container.style.display = 'none';
       return;
     }
 
+    this.container.style.display = 'block';
     const { matrices2D, activePointers } = snapshot;
-    let html = '<div class="matrices-container">';
+    let html = '<div class="matrices-container visual-section-box">';
+    html += `
+      <div class="section-title">
+        <span>🔲 Matrices Bidimensionales (2D)</span>
+        <span class="badge badge-primary">${Object.keys(matrices2D).length} matriz/ces</span>
+      </div>
+    `;
 
     for (const [name, mat] of Object.entries(matrices2D)) {
       const lastAccess = mat.lastAccess;
@@ -39,9 +42,7 @@ export class MatrixView {
                   <th class="matrix-corner">F \\ C</th>
       `;
 
-      // Encabezados de columnas [0], [1], ...
       for (let c = 0; c < mat.cols; c++) {
-        // Chequear si alguna variable apunta a esta columna (ej. c, col, j)
         const colPointers = [];
         for (const [vName, vVal] of Object.entries(activePointers)) {
           if (['c', 'col', 'j', 'columna'].includes(vName.toLowerCase()) && vVal === c) {
@@ -63,9 +64,7 @@ export class MatrixView {
               <tbody>
       `;
 
-      // Filas y celdas
       for (let r = 0; r < mat.rows; r++) {
-        // Chequear si alguna variable apunta a esta fila (ej. f, fila, i, row)
         const rowPointers = [];
         for (const [vName, vVal] of Object.entries(activePointers)) {
           if (['f', 'fila', 'i', 'row', 'r'].includes(vName.toLowerCase()) && vVal === r) {
