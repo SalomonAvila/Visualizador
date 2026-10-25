@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C++ VisualLab - Introducción a la Programación</title>
+  <meta name="description" content="Plataforma interactiva para visualizar paso a paso conceptos básicos de C++: arreglos, matrices, structs, ciclos y fstream con parseo por comas y atoi.">
+  
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/editor.css">
+  <link rel="stylesheet" href="./css/visualizer.css">
+</head>
+<body>
+
+  <!-- Barra de Navegación Superior -->
+  <nav class="navbar">
+    <div class="brand">
+      <div class="brand-icon">C++</div>
+      <div>
+        <div class="brand-title">VisualLab</div>
+        <div class="brand-subtitle">Introducción a la Programación</div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <div class="example-selector-wrapper">
+        <label for="examplesSelect" class="example-label">Lección:</label>
+        <select id="examplesSelect" class="select-input"></select>
+      </div>
+
+      <button id="vfsBtn" class="btn btn-outline" title="Gestionar y editar archivos virtuales">
+        📁 Archivos VFS
+      </button>
+
+      <button id="challengesBtn" class="btn btn-secondary" title="Retos de práctica y autoevaluación">
+        🎯 Retos
+      </button>
+
+      <button id="cheatsheetBtn" class="btn btn-outline" title="Guía rápida con la sintaxis del curso">
+        📖 Guía Rápida
+      </button>
+
+      <button id="themeToggle" class="btn btn-icon btn-outline" title="Cambiar tema claro/oscuro">
+        ☀️
+      </button>
+    </div>
+  </nav>
+
+  <!-- Contenedor Principal en Dos Columnas -->
+  <main class="main-layout">
+    
+    <!-- Columna Izquierda: Editor + Controles + Consola -->
+    <section class="left-panel">
+      <!-- Editor de Código C++ -->
+      <div class="editor-section" id="editorContainer"></div>
+
+      <!-- Barra de Controles de Ejecución Paso a Paso -->
+      <div class="controls-bar">
+        <div class="controls-actions-row">
+          <div class="btn-group">
+            <button id="btnRun" class="btn btn-success" title="Iniciar ejecución">
+              ▶ Ejecutar
+            </button>
+            <button id="btnPrev" class="btn btn-secondary" title="Paso anterior">
+              ⏮ Anterior
+            </button>
+            <button id="btnNext" class="btn btn-primary" title="Paso siguiente">
+              Paso ⏭
+            </button>
+            <button id="btnPlay" class="btn btn-secondary" title="Reproducción continua">
+              ▶ Reproducir
+            </button>
+            <button id="btnReset" class="btn btn-outline" title="Reiniciar al paso 1">
+              🔄 Reiniciar
+            </button>
+          </div>
+
+          <div class="btn-group">
+            <label for="speedSelect" class="example-label">Velocidad:</label>
+            <select id="speedSelect" class="select-input" style="width: auto; padding: 4px 8px;">
+              <option value="1200">0.5x (Lento)</option>
+              <option value="700" selected>1x (Normal)</option>
+              <option value="350">2x (Rápido)</option>
+              <option value="150">4x (Flash)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Slider de Progreso de Pasos -->
+        <div class="slider-row">
+          <input type="range" id="stepSlider" class="step-slider" min="0" max="0" value="0">
+          <span id="stepCounter" class="step-counter-label">Paso 0 de 0</span>
+        </div>
+      </div>
+
+      <!-- Sección de Consola (cin / cout) -->
+      <div class="console-section">
+        <div class="console-header">
+          <span>Terminal C++ (cout / cin)</span>
+          <small>Flujos estándar I/O</small>
+        </div>
+        <div class="console-io-container">
+          <div class="stdin-bar">
+            <span class="stdin-label">cin &gt;&gt;</span>
+            <input type="text" id="stdinInput" class="stdin-input" placeholder="Valores de entrada separados por espacio para cin...">
+          </div>
+          <div id="consoleOutput" class="console-output">(Consola vacía)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Columna Derecha: Explicación de Paso + Visualizadores -->
+    <section class="right-panel">
+      <!-- Banner Explicativo del Paso Actual -->
+      <div class="step-banner" id="stepBanner">
+        <div class="step-tags">
+          <span id="stepLineTag" class="step-line-badge">Línea 1</span>
+          <span id="stepActionTag" class="badge badge-primary">Inicio</span>
+        </div>
+        <div id="stepDescription" class="step-desc-text">Presiona "Ejecutar" o "Paso" para comenzar a depurar visualmente.</div>
+      </div>
+
+      <!-- Barra de Pestañas de Visualización -->
+      <div class="vis-tabs-bar">
+        <button class="vis-tab-btn active" data-tab="arrays">
+          📊 Arreglos 1D
+        </button>
+        <button class="vis-tab-btn" data-tab="matrices">
+          🔲 Matrices 2D
+        </button>
+        <button class="vis-tab-btn" data-tab="structs">
+          📑 Estructuras (struct)
+        </button>
+        <button class="vis-tab-btn" data-tab="fstream">
+          📄 Archivos (fstream)
+        </button>
+        <button class="vis-tab-btn" data-tab="memory">
+          🧠 Pila y Variables
+        </button>
+      </div>
+
+      <!-- Contenedores de Visualización -->
+      <div class="vis-content-area">
+        <div id="paneArrays" class="vis-pane active"></div>
+        <div id="paneMatrices" class="vis-pane"></div>
+        <div id="paneStructs" class="vis-pane"></div>
+        <div id="paneFstream" class="vis-pane"></div>
+        <div id="paneMemory" class="vis-pane"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal de Retos y Práctica -->
+  <div class="modal-overlay" id="challengesModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">🎯 Retos de Práctica Interactivos</div>
+        <button class="modal-close-btn" id="challengesClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="challenges-grid" id="challengesList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Guía Rápida (Cheat Sheet) -->
+  <div class="modal-overlay" id="cheatsheetModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">📖 Guía Rápida de Sintaxis C++ (Nivel Básico)</div>
+        <button class="modal-close-btn" id="cheatsheetClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="cheat-section">
+          <h3>1. Arreglos Unidimensionales (1D)</h3>
+          <p class="text-secondary" style="margin-bottom: 6px;">Declaración y recorrido clásico con ciclo <code>for</code>:</p>
+          <pre class="cheat-code">int numeros[5] = {10, 20, 30, 40, 50};
+for (int i = 0; i &lt; 5; i++) {
+    cout &lt;&lt; numeros[i] &lt;&lt; endl; // Acceso por indice [0] al [4]
+}</pre>
+        </div>
+
+        <div class="cheat-section">
+          <h3>2. Matrices Bidimensionales (2D)</h3>
+          <p class="text-secondary" style="margin-bottom: 6px;">Declaración y recorrido con ciclos anidados (fila y columna):</p>
+          <pre class="cheat-code">int matriz[3][3];
+for (int f = 0; f &lt; 3; f++) {
+    for (int c = 0; c &lt; 3; c++) {
+        matriz[f][c] = (f + 1) * (c + 1);
+    }
+}</pre>
+        </div>
+
+        <div class="cheat-section">
+          <h3>3. Estructuras (struct) y Arreglos de Structs</h3>
+          <p class="text-secondary" style="margin-bottom: 6px;">Definición de registros y acceso por punto <code>.</code>:</p>
+          <pre class="cheat-code">struct Alumno {
+    string nombre;
+    int edad;
+    float nota;
+};
+
+Alumno clase[10]; // Arreglo de 10 alumnos
+clase[0].nombre = "Sofia";
+clase[0].edad = 19;
+clase[0].nota = 9.5;</pre>
+        </div>
+
+        <div class="cheat-section">
+          <h3>4. Archivos (fstream), parseo con getline por comas y atoi</h3>
+          <p class="text-secondary" style="margin-bottom: 6px;">Lectura estándar de archivos CSV de texto:</p>
+          <pre class="cheat-code">#include &lt;fstream&gt;
+#include &lt;cstdlib&gt;
+
+ifstream archivo("estudiantes.csv");
+ofstream reporte("salida.txt");
+
+string campo1, campo2Str;
+// getline lee hasta encontrar la coma ','
+while (getline(archivo, campo1, ',')) {
+    getline(archivo, campo2Str); // lee el resto de la linea hasta el salto
+
+    int valor = atoi(campo2Str.c_str()); // convierte string a int
+    reporte &lt;&lt; "Guardado: " &lt;&lt; campo1 &lt;&lt; " " &lt;&lt; valor &lt;&lt; endl;
+}
+
+archivo.close();
+reporte.close();</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Archivos Virtuales (VFS) -->
+  <div class="modal-overlay" id="vfsModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">📁 Gestor de Archivos de Texto Virtuales (VFS)</div>
+        <button class="modal-close-btn" id="vfsClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="text-secondary" style="margin-bottom: 12px;">
+          Estos archivos están en la memoria del navegador y son leídos por <code>ifstream</code> o escritos por <code>ofstream</code>. Puedes modificar sus datos para hacer pruebas:
+        </p>
+        <div style="display: flex; gap: 12px; margin-bottom: 12px;" id="vfsFileList"></div>
+        <div style="margin-bottom: 8px;">
+          Editando: <strong id="vfsCurrentFileName">estudiantes.csv</strong>
+        </div>
+        <textarea id="vfsFileContent" class="select-input" style="width: 100%; height: 220px; font-family: monospace; font-size: 0.9rem; line-height: 1.5; resize: vertical;"></textarea>
+        <div style="margin-top: 14px; display: flex; justify-content: flex-end; gap: 8px;">
+          <button id="vfsSaveBtn" class="btn btn-success">Guardar y Re-ejecutar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script Principal Modular -->
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
