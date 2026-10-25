@@ -2078,91 +2078,38 @@ Luis Torres,19,88`);
 
   // js/utils/autocomplete.js
   var AUTOCOMPLETE_CATALOG = [
-    { label: "int", type: "tipo", detail: "Tipo entero (ej. int x = 10;)", insertText: "int " },
-    { label: "float", type: "tipo", detail: "Decimal simple (ej. float nota = 8.5;)", insertText: "float " },
-    { label: "double", type: "tipo", detail: "Decimal doble precisión", insertText: "double " },
-    { label: "char", type: "tipo", detail: "Carácter simple (ej. char c = 'A';)", insertText: "char " },
-    { label: "bool", type: "tipo", detail: "Booleano (true o false)", insertText: "bool " },
-    { label: "string", type: "tipo", detail: "Cadena de texto C++", insertText: "string " },
-    { label: "void", type: "tipo", detail: "Retorno vacío para funciones", insertText: "void " },
-    { label: "ifstream", type: "tipo", detail: "Lectura de archivos de texto", insertText: "ifstream " },
-    { label: "ofstream", type: "tipo", detail: "Escritura de archivos de texto", insertText: "ofstream " },
-    { label: "struct", type: "clave", detail: "Definición de estructura/registro", insertText: "struct " },
-    { label: "for", type: "clave", detail: "Ciclo for con contador", insertText: "for " },
-    { label: "while", type: "clave", detail: "Ciclo repetitivo while", insertText: "while " },
-    { label: "do", type: "clave", detail: "Ciclo do-while", insertText: "do " },
-    { label: "if", type: "clave", detail: "Condicional if", insertText: "if " },
-    { label: "else", type: "clave", detail: "Rama alternativa else", insertText: "else " },
-    { label: "return", type: "clave", detail: "Retorno de función", insertText: "return " },
-    { label: "break", type: "clave", detail: "Interrumpir ciclo", insertText: "break;" },
-    { label: "continue", type: "clave", detail: "Siguiente iteración del ciclo", insertText: "continue;" },
-    { label: "cout", type: "io", detail: "Salida por pantalla estándar", insertText: "cout << " },
-    { label: "cin", type: "io", detail: "Entrada desde teclado", insertText: "cin >> " },
-    { label: "endl", type: "io", detail: "Salto de línea en consola", insertText: "endl;" },
-    { label: "getline(..., ',')", type: "función", detail: "Leer campo delimitado por comas", insertText: "getline(archivo, token, ',')" },
-    { label: "getline(...)", type: "función", detail: "Leer línea completa", insertText: "getline(archivo, linea)" },
-    { label: "atoi", type: "función", detail: "Convertir string a entero (atoi(str.c_str()))", insertText: "atoi(.c_str())" },
-    { label: "atol", type: "función", detail: "Convertir string a long", insertText: "atol(.c_str())" },
-    { label: "atof", type: "función", detail: "Convertir string a float/double", insertText: "atof(.c_str())" },
-    { label: "stoi", type: "función", detail: "Convertir string a int C++", insertText: "stoi()" },
-    { label: "is_open()", type: "función", detail: "Verificar si el archivo abrió bien", insertText: "is_open()" },
-    { label: "close()", type: "función", detail: "Cerrar flujo de archivo", insertText: "close();" },
-    {
-      label: "for (ciclo i)",
-      type: "snippet",
-      detail: "Ciclo for clásico de 0 a n",
-      insertText: `for (int i = 0; i < n; i++) {
-    
-}`
-    },
-    {
-      label: "for-matriz (2D)",
-      type: "snippet",
-      detail: "Recorrido de matriz por fila y columna",
-      insertText: `for (int f = 0; f < filas; f++) {
-    for (int c = 0; c < columnas; c++) {
-        
-    }
-}`
-    },
-    {
-      label: "while-getline (CSV)",
-      type: "snippet",
-      detail: "Recorrer archivo CSV línea por línea",
-      insertText: `while (getline(archivo, nombre, ',')) {
-    getline(archivo, valorStr);
-    int valor = atoi(valorStr.c_str());
-}`
-    },
-    {
-      label: "struct (modelo)",
-      type: "snippet",
-      detail: "Plantilla de estructura",
-      insertText: `struct Alumno {
-    string nombre;
-    int edad;
-    float nota;
-};`
-    },
-    {
-      label: "ifstream (abrir)",
-      type: "snippet",
-      detail: "Abrir archivo con verificación de error",
-      insertText: `ifstream archivo("datos.csv");
-if (!archivo.is_open()) {
-    cout << "Error: no se pudo abrir el archivo" << endl;
-    return 1;
-}`
-    },
-    {
-      label: "main()",
-      type: "snippet",
-      detail: "Función principal int main()",
-      insertText: `int main() {
-    
-    return 0;
-}`
-    }
+    { label: "int", type: "tipo", detail: "Tipo de dato entero", insertText: "int" },
+    { label: "float", type: "tipo", detail: "Tipo decimal simple", insertText: "float" },
+    { label: "double", type: "tipo", detail: "Tipo decimal doble precisión", insertText: "double" },
+    { label: "char", type: "tipo", detail: "Tipo carácter", insertText: "char" },
+    { label: "bool", type: "tipo", detail: "Tipo booleano", insertText: "bool" },
+    { label: "string", type: "tipo", detail: "Cadena de texto C++", insertText: "string" },
+    { label: "void", type: "tipo", detail: "Tipo de retorno vacío", insertText: "void" },
+    { label: "ifstream", type: "tipo", detail: "Flujo de lectura de archivos", insertText: "ifstream" },
+    { label: "ofstream", type: "tipo", detail: "Flujo de escritura de archivos", insertText: "ofstream" },
+    { label: "fstream", type: "tipo", detail: "Flujo de archivo general", insertText: "fstream" },
+    { label: "struct", type: "clave", detail: "Palabra reservada struct", insertText: "struct" },
+    { label: "for", type: "clave", detail: "Palabra reservada for", insertText: "for" },
+    { label: "while", type: "clave", detail: "Palabra reservada while", insertText: "while" },
+    { label: "do", type: "clave", detail: "Palabra reservada do", insertText: "do" },
+    { label: "if", type: "clave", detail: "Palabra reservada if", insertText: "if" },
+    { label: "else", type: "clave", detail: "Palabra reservada else", insertText: "else" },
+    { label: "return", type: "clave", detail: "Palabra reservada return", insertText: "return" },
+    { label: "break", type: "clave", detail: "Palabra reservada break", insertText: "break;" },
+    { label: "continue", type: "clave", detail: "Palabra reservada continue", insertText: "continue;" },
+    { label: "true", type: "clave", detail: "Valor booleano true", insertText: "true" },
+    { label: "false", type: "clave", detail: "Valor booleano false", insertText: "false" },
+    { label: "cout", type: "io", detail: "Flujo de salida estándar", insertText: "cout" },
+    { label: "cin", type: "io", detail: "Flujo de entrada estándar", insertText: "cin" },
+    { label: "endl", type: "io", detail: "Fin de línea de flujo", insertText: "endl" },
+    { label: "getline", type: "función", detail: "Función getline para texto/CSV", insertText: "getline" },
+    { label: "atoi", type: "función", detail: "Conversión string a int", insertText: "atoi" },
+    { label: "atol", type: "función", detail: "Conversión string a long", insertText: "atol" },
+    { label: "atof", type: "función", detail: "Conversión string a float", insertText: "atof" },
+    { label: "stoi", type: "función", detail: "Conversión de string a int", insertText: "stoi" },
+    { label: "is_open", type: "función", detail: "Método comprobación de archivo", insertText: "is_open()" },
+    { label: "close", type: "función", detail: "Método cierre de archivo", insertText: "close()" },
+    { label: "c_str", type: "función", detail: "Método c_str() de string", insertText: "c_str()" }
   ];
 
   class Autocomplete {
@@ -2232,12 +2179,9 @@ if (!archivo.is_open()) {
         this.close();
         return;
       }
-      const userSymbols = this.extractUserSymbols(text);
-      const allCandidates = [...userSymbols, ...AUTOCOMPLETE_CATALOG];
-      this.items = allCandidates.filter((item) => {
-        const matchLabel = item.label.toLowerCase().includes(this.query);
-        return matchLabel;
-      }).slice(0, 8);
+      this.items = AUTOCOMPLETE_CATALOG.filter((item) => {
+        return item.label.toLowerCase().startsWith(this.query) || this.query.length >= 2 && item.label.toLowerCase().includes(this.query);
+      }).slice(0, 7);
       if (this.items.length === 0) {
         this.close();
         return;
@@ -2245,58 +2189,6 @@ if (!archivo.is_open()) {
       this.selectedIndex = 0;
       this.renderMenu();
       this.positionMenu(cursor);
-    }
-    extractUserSymbols(code) {
-      const symbols = [];
-      const seen = new Set;
-      const regex = /\b([a-zA-Z_]\w*)\b/g;
-      let match;
-      const reserved = new Set([
-        "int",
-        "float",
-        "double",
-        "char",
-        "bool",
-        "void",
-        "string",
-        "ifstream",
-        "ofstream",
-        "fstream",
-        "struct",
-        "if",
-        "else",
-        "while",
-        "for",
-        "do",
-        "break",
-        "continue",
-        "return",
-        "cout",
-        "cin",
-        "endl",
-        "getline",
-        "atoi",
-        "atol",
-        "atof",
-        "stoi",
-        "include",
-        "using",
-        "namespace",
-        "std"
-      ]);
-      while ((match = regex.exec(code)) !== null) {
-        const word = match[1];
-        if (!reserved.has(word) && !seen.has(word) && word.length > 2) {
-          seen.add(word);
-          symbols.push({
-            label: word,
-            type: "variable",
-            detail: "Símbolo del código",
-            insertText: word
-          });
-        }
-      }
-      return symbols;
     }
     positionMenu(cursor) {
       const textBefore = this.textarea.value.substring(0, cursor);
@@ -2306,14 +2198,14 @@ if (!archivo.is_open()) {
       const colIndex = lines[lineIndex].length;
       const lineHeight = 22;
       const charWidth = 8.1;
-      const rawTop = (lineIndex + 1) * lineHeight - this.textarea.scrollTop + 38;
-      const left = Math.min(this.textarea.clientWidth - 280, Math.max(10, colIndex * charWidth - this.textarea.scrollLeft + 14));
+      const rawTop = (lineIndex + 1) * lineHeight - this.textarea.scrollTop;
+      const left = Math.min(this.textarea.clientWidth - 260, Math.max(10, colIndex * charWidth - this.textarea.scrollLeft + 14));
       const containerHeight = this.textarea.clientHeight;
       let finalTop = rawTop;
-      if (rawTop > containerHeight - 160 && rawTop > 200) {
-        finalTop = lineIndex * lineHeight - this.textarea.scrollTop - 180 + 38;
+      if (rawTop > containerHeight - 140 && rawTop > 160) {
+        finalTop = lineIndex * lineHeight - this.textarea.scrollTop - 160;
       }
-      this.menu.style.top = `${Math.max(10, finalTop)}px`;
+      this.menu.style.top = `${Math.max(5, finalTop)}px`;
       this.menu.style.left = `${left}px`;
       this.menu.style.display = "block";
       this.isOpen = true;
@@ -2325,12 +2217,8 @@ if (!archivo.is_open()) {
         let badgeClass = "ac-badge-clave";
         if (item.type === "tipo")
           badgeClass = "ac-badge-tipo";
-        else if (item.type === "snippet")
-          badgeClass = "ac-badge-snippet";
         else if (item.type === "función")
           badgeClass = "ac-badge-fn";
-        else if (item.type === "variable")
-          badgeClass = "ac-badge-var";
         html += `
         <div class="ac-item ${isSel ? "ac-selected" : ""}" data-idx="${idx}">
           <span class="ac-badge ${badgeClass}">${item.type}</span>
@@ -2371,7 +2259,7 @@ if (!archivo.is_open()) {
       this.textarea.selectionStart = this.textarea.selectionEnd = newCursor;
       this.close();
       this.editor.updateGutter();
-      this.editor.updateHighlightOverlay();
+      this.editor.updateSyntaxHighlight();
       if (this.editor.onChangeCallback) {
         this.editor.onChangeCallback(this.textarea.value);
       }
@@ -2394,18 +2282,6 @@ if (!archivo.is_open()) {
     }
     render() {
       this.container.innerHTML = `
-      <!-- Barra Superior de Snippets y Asistente de Código -->
-      <div class="editor-quick-bar">
-        <span class="quick-bar-label">⚡ Asistente C++:</span>
-        <button type="button" class="quick-chip" data-snip="for" title="Insertar ciclo for con contador">+ for</button>
-        <button type="button" class="quick-chip" data-snip="for-matriz" title="Insertar recorrido de matriz 2D">+ for 2D</button>
-        <button type="button" class="quick-chip" data-snip="while-getline" title="Insertar lectura CSV con comas y atoi">+ getline CSV</button>
-        <button type="button" class="quick-chip" data-snip="struct" title="Insertar estructura struct">+ struct</button>
-        <button type="button" class="quick-chip" data-snip="ifstream" title="Insertar apertura de archivo ifstream">+ ifstream</button>
-        <button type="button" class="quick-chip" data-snip="cout" title="Insertar cout estándar">+ cout</button>
-        <span class="quick-bar-hint">Tips: Ctrl+Espacio para autocompletar</span>
-      </div>
-
       <div class="editor-wrapper">
         <div class="editor-gutter" id="editorGutter"></div>
         <div class="editor-input-container">
@@ -2427,7 +2303,6 @@ if (!archivo.is_open()) {
       this.gutter = this.container.querySelector("#editorGutter");
       this.syntaxLayer = this.container.querySelector("#editorSyntaxLayer");
       this.setupEvents();
-      this.setupQuickChips();
       this.updateGutter();
       this.updateSyntaxHighlight();
     }
@@ -2461,67 +2336,6 @@ if (!archivo.is_open()) {
           }
         }
       });
-    }
-    setupQuickChips() {
-      const chips = this.container.querySelectorAll(".quick-chip");
-      chips.forEach((chip) => {
-        chip.addEventListener("click", () => {
-          const snipType = chip.getAttribute("data-snip");
-          this.insertSnippet(snipType);
-        });
-      });
-    }
-    insertSnippet(snipType) {
-      let snippetCode = "";
-      if (snipType === "for") {
-        snippetCode = `    for (int i = 0; i < n; i++) {
-        
-    }
-`;
-      } else if (snipType === "for-matriz") {
-        snippetCode = `    for (int f = 0; f < filas; f++) {
-        for (int c = 0; c < columnas; c++) {
-            
-        }
-    }
-`;
-      } else if (snipType === "while-getline") {
-        snippetCode = `    while (getline(archivo, campo, ',')) {
-        getline(archivo, valorStr);
-        int valor = atoi(valorStr.c_str());
-    }
-`;
-      } else if (snipType === "struct") {
-        snippetCode = `struct Alumno {
-    string nombre;
-    int edad;
-    float nota;
-};
-`;
-      } else if (snipType === "ifstream") {
-        snippetCode = `    ifstream archivo("datos.csv");
-    if (!archivo.is_open()) {
-        cout << "Error al abrir archivo" << endl;
-        return 1;
-    }
-`;
-      } else if (snipType === "cout") {
-        snippetCode = `    cout << "Resultado: " << valor << endl;
-`;
-      }
-      if (!snippetCode)
-        return;
-      const start = this.textarea.selectionStart;
-      const end = this.textarea.selectionEnd;
-      const val = this.textarea.value;
-      this.textarea.value = val.substring(0, start) + snippetCode + val.substring(end);
-      this.textarea.selectionStart = this.textarea.selectionEnd = start + snippetCode.length;
-      this.textarea.focus();
-      this.updateGutter();
-      this.updateSyntaxHighlight();
-      if (this.onChangeCallback) {
-        this.onChangeCallback(this.getValue());
-      }
     }
     updateGutter() {
       const lines = this.textarea.value.split(`
