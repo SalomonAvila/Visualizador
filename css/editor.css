@@ -439,3 +439,16 @@ body.light-theme .editor-textarea {
   justify-content: center;
   height: 100%;
 }
+
+/* Salida de error del compilador g++ */
+.console-output.console-gpp-error {
+  color: #f87171;
+}
+
+.controls-actions-row .btn {
+  white-space: nowrap;
+}
+
+.controls-actions-row .btn-group {
+  flex-wrap: wrap;
+}

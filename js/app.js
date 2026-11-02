@@ -5,6 +5,7 @@ import { Runtime } from './interpreter/runtime.js';
 import { VirtualFileSystem } from './interpreter/vfs.js';
 
 import { MonacoCodeEditor } from './utils/monacoEditor.js';
+import { compileAndRun } from './utils/remoteCompiler.js';
 import { MemoryView } from './visualizers/memoryView.js';
 import { ArrayView } from './visualizers/arrayView.js';
 import { MatrixView } from './visualizers/matrixView.js';
@@ -39,6 +40,7 @@ export class App {
 
       // Controles
       btnRun: document.getElementById('btnRun'),
+      btnCompile: document.getElementById('btnCompile'),
       btnPrev: document.getElementById('btnPrev'),
       btnNext: document.getElementById('btnNext'),
       btnPlay: document.getElementById('btnPlay'),
@@ -145,6 +147,7 @@ export class App {
     });
 
     this.dom.btnRun.addEventListener('click', () => this.runCode());
+    this.dom.btnCompile.addEventListener('click', () => this.compileWithGpp());
     this.dom.btnNext.addEventListener('click', () => this.stepNext());
     this.dom.btnPrev.addEventListener('click', () => this.stepPrev());
     this.dom.btnPlay.addEventListener('click', () => this.togglePlay());
@@ -291,6 +294,7 @@ export class App {
     this.dom.stepActionTag.textContent = snap.action;
     this.dom.stepDescription.textContent = snap.description;
 
+    this.dom.consoleOutput.classList.remove('console-gpp-error');
     this.dom.consoleOutput.textContent = snap.consoleOutput || '(Consola vacía)';
 
     // Renderizar todos los visualizadores en cascada
@@ -334,6 +338,53 @@ export class App {
     this.dom.stepActionTag.textContent = 'Sintaxis / Ejecución';
     this.dom.stepDescription.textContent = msg;
     this.dom.consoleOutput.textContent = `❌ ${msg}`;
+  }
+
+  // --- Compilación real con g++ (servicio en línea) ---
+  async compileWithGpp() {
+    if (this.isCompiling) return;
+    this.isCompiling = true;
+    this.stopPlayback();
+
+    const btn = this.dom.btnCompile;
+    const originalLabel = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Compilando...';
+
+    const out = this.dom.consoleOutput;
+    out.classList.remove('console-gpp-error');
+    out.textContent = '⚙️ Enviando código al compilador g++ en línea...';
+
+    const files = this.vfs.listFiles().map(name => ({ name, content: this.vfs.getFile(name) ?? '' }));
+
+    try {
+      const r = await compileAndRun(this.editor.getValue(), this.dom.stdinInput.value, files);
+      this.editor.setDiagnostics?.(r.diagnostics);
+
+      const errors = r.diagnostics.filter(d => d.severity === 'error').length;
+      const warnings = r.diagnostics.filter(d => d.severity === 'warning').length;
+      let text = `=== g++ · ${r.provider} ===\n`;
+
+      if (!r.compiled) {
+        out.classList.add('console-gpp-error');
+        text += `❌ Error de compilación (${errors} error(es), ${warnings} advertencia(s))\n\n${r.compilerOutput.trim()}`;
+      } else {
+        if (warnings > 0) text += `⚠️ Compilado con ${warnings} advertencia(s):\n${r.compilerOutput.trim()}\n\n`;
+        else text += '✅ Compilado sin errores\n\n';
+        text += r.stdout || '(El programa no imprimió nada)';
+        if (r.stderr) text += `\n[stderr]\n${r.stderr}`;
+        if (r.signal) text += `\n[Señal: ${r.signal}]`;
+        if (r.exitCode != null) text += `\n\n[Proceso terminado con código ${r.exitCode}]`;
+      }
+      out.textContent = text;
+    } catch (err) {
+      out.classList.add('console-gpp-error');
+      out.textContent = `❌ ${err.message}\nRevisa tu conexión a internet. El visualizador paso a paso sigue funcionando sin conexión.`;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalLabel;
+      this.isCompiling = false;
+    }
   }
 
   // --- Retos ---

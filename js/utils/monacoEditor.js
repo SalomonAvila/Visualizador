@@ -163,6 +163,7 @@ export class MonacoCodeEditor {
     this.fallback = null;
 
     this.monacoEditor.onDidChangeModelContent(() => {
+      this.clearDiagnostics();
       this.emitChange(this.monacoEditor.getValue());
     });
 
@@ -208,6 +209,37 @@ export class MonacoCodeEditor {
       return;
     }
     this.decorations.clear();
+  }
+
+  // Muestra errores/advertencias del compilador subrayados en el código
+  setDiagnostics(diagnostics) {
+    if (!this.monacoEditor) return;
+    const monaco = this.monaco;
+    const model = this.monacoEditor.getModel();
+    const severityMap = {
+      error: monaco.MarkerSeverity.Error,
+      warning: monaco.MarkerSeverity.Warning,
+      note: monaco.MarkerSeverity.Info
+    };
+    const markers = diagnostics
+      .filter(d => d.line >= 1 && d.line <= model.getLineCount())
+      .map(d => ({
+        startLineNumber: d.line,
+        startColumn: d.column,
+        endLineNumber: d.line,
+        endColumn: Math.max(d.column + 1, model.getWordAtPosition({ lineNumber: d.line, column: d.column })?.endColumn ?? model.getLineMaxColumn(d.line)),
+        message: d.message,
+        severity: severityMap[d.severity] ?? monaco.MarkerSeverity.Info,
+        source: 'g++'
+      }));
+    monaco.editor.setModelMarkers(model, 'gpp', markers);
+    const firstError = diagnostics.find(d => d.severity === 'error');
+    if (firstError) this.monacoEditor.revealLineInCenterIfOutsideViewport(firstError.line);
+  }
+
+  clearDiagnostics() {
+    if (!this.monacoEditor) return;
+    this.monaco.editor.setModelMarkers(this.monacoEditor.getModel(), 'gpp', []);
   }
 
   getValue() {
