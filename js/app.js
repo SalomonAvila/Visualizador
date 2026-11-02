@@ -4,7 +4,7 @@ import { Parser } from './interpreter/parser.js';
 import { Runtime } from './interpreter/runtime.js';
 import { VirtualFileSystem } from './interpreter/vfs.js';
 
-import { CodeEditor } from './utils/editor.js';
+import { MonacoCodeEditor } from './utils/monacoEditor.js';
 import { MemoryView } from './visualizers/memoryView.js';
 import { ArrayView } from './visualizers/arrayView.js';
 import { MatrixView } from './visualizers/matrixView.js';
@@ -122,7 +122,7 @@ export class App {
 
   initEditor() {
     const editorContainer = document.getElementById('editorContainer');
-    this.editor = new CodeEditor(editorContainer, EXAMPLES[0].code);
+    this.editor = new MonacoCodeEditor(editorContainer, EXAMPLES[0].code);
     this.editor.onChange(() => {
       this.stopPlayback();
       this.snapshots = [];

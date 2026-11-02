@@ -417,3 +417,25 @@ body.light-theme .editor-textarea {
   overflow-y: auto;
   line-height: 1.4;
 }
+
+/* ===== Monaco Editor ===== */
+.monaco-host {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.monaco-active-step-line {
+  background-color: rgba(251, 191, 36, 0.18);
+  border-left: 3px solid #fbbf24;
+}
+
+.monaco-active-step-glyph::before {
+  content: '▶';
+  color: #fbbf24;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
